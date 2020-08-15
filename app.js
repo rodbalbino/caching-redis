@@ -12,15 +12,16 @@ var app = express();
 app.use(responseTime());
 
 client.on('connect', function () {
-    console.log('Redis client conectado com sucesso!');
+    console.log('Redis client connected!');
 });
 
 client.on('error', function (err) {
-    console.log('Houve um erro com Redis: ', err.message)
+    console.log('Error on Redis: ', err.message)
 });
 
 const getBook = (req, res) => {
     let isbn = req.query.isbn;
+    console.log(isbn)
     let url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
 
     axios.get(url)
@@ -29,7 +30,7 @@ const getBook = (req, res) => {
             let book_data = JSON.stringify(book);
 
             if (!book_data) 
-                throw new Error('O livro que você esta procurando não foi encontrado !!!');
+                throw new Error('The book you are looking for is not found !!!');
 
             client.setex(isbn, 3600, book_data);
             res.send(book);
@@ -42,7 +43,7 @@ const getBook = (req, res) => {
 
 const getCache = (req, res) => {
     let isbn = req.query.isbn;
-    // Checa os dados do cache do servidor redis
+    
     client.get(isbn, (err, result) => {
         if (err) throw err;
         if (result) {
@@ -52,7 +53,6 @@ const getCache = (req, res) => {
         }
     });
 };
-
 
 app.get('/book', getCache);
 
