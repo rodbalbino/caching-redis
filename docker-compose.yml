@@ -9,7 +9,6 @@ services:
     volumes:
       - ../data/redis:/data
     restart: always
-
     
   caching-redis:
     container_name: app
